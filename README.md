@@ -1,6 +1,14 @@
 ## Cloud Datastore Go Client (Fork)
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/norbertvannobelen/gclouddatastore.svg)](https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore)
+
 This is a fork of the [Google Cloud Datastore Go client library](https://github.com/googleapis/google-cloud-go/tree/main/datastore) with enhanced functionality for partial object parsing, improved query filtering, and optimized count operations.
+
+The changes here (relative to Google’s `datastore` package) come from several years of running **Cloud Datastore in Datastore mode**. It is an interesting database to operate, but the official Go client has limitations and bugs; this fork addresses those. Because it is maintained by someone who uses Datastore daily, the fixes remove practical, day-to-day annoyances that Go developers can hit with the upstream package.
+
+As a bonus, the fork also drives down **data storage, backup, and snapshot** costs—by an estimated **~95%** in the author’s workloads (on the order of ~1 billion records total). Hypothetically, writes can be faster too: less I/O and CPU because far fewer indexes are updated.
+
+The package surface is **100% backwards compatible** with Google’s client and works as a **drop-in replacement**, with one important caveat: the cost-oriented default **flips index behavior** from *indexed by default* to *no index by default*. Every property that must be queryable must be indexed explicitly by the developer (see **Default no index** below).
 
 **Original Package**: `cloud.google.com/go/datastore`  
 **This Fork**: `github.com/norbertvannobelen/gclouddatastore`

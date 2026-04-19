@@ -21,8 +21,8 @@ package admin_test
 import (
 	"context"
 
-	admin "cloud.google.com/go/datastore/admin/apiv1"
-	adminpb "cloud.google.com/go/datastore/admin/apiv1/adminpb"
+	admin "github.com/norbertvannobelen/gclouddatastore/admin/apiv1"
+	adminpb "github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 )
 
@@ -41,7 +41,7 @@ func ExampleDatastoreAdminClient_ListIndexes_all() {
 
 	req := &adminpb.ListIndexesRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/cloud.google.com/go/datastore/admin/apiv1/adminpb#ListIndexesRequest.
+		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#ListIndexesRequest.
 	}
 	for resp, err := range c.ListIndexes(ctx, req).All() {
 		if err != nil {

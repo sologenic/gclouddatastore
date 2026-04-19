@@ -13,10 +13,15 @@
 // limitations under the License.
 
 /*
-Package datastore provides a client for Google Cloud Datastore.
+Package datastore provides a Google Cloud Datastore client based on the
+upstream google-cloud-go datastore module, with fork-specific behavior:
+partial struct loads without field-mismatch errors, GetAllWithUnparsedFields,
+automatic FilterField type coercion, aggregation-based Count, and properties
+excluded from indexes by default unless opted in (see README for migration).
 
-See https://godoc.org/cloud.google.com/go for authentication, timeouts,
-connection pooling and similar aspects of this package.
+For authentication, timeouts, connection pooling, and other topics common to
+Google Cloud Go clients, see https://pkg.go.dev/cloud.google.com/go#pkg-overview.
+The upstream Datastore reference is https://pkg.go.dev/cloud.google.com/go/datastore.
 
 # Basic Operations
 

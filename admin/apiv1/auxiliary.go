@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	adminpb "cloud.google.com/go/datastore/admin/apiv1/adminpb"
+	adminpb "github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb"
 	"cloud.google.com/go/longrunning"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	gax "github.com/googleapis/gax-go/v2"
