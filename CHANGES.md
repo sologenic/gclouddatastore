@@ -1,5 +1,48 @@
 # Changes
 
+## This fork (`github.com/norbertvannobelen/gclouddatastore`)
+
+The following entries describe changes in **this repository** relative to the upstream [Cloud Datastore Go client](https://github.com/googleapis/google-cloud-go/tree/main/datastore) at [`cloud.google.com/go/datastore` v1.21.0](https://github.com/googleapis/google-cloud-go/releases/tag/datastore%2Fv1.21.0). See [README.md](README.md) for installation, examples, and migration from `cloud.google.com/go/datastore`.
+
+### 2026-04-19 — Default unindexed properties; index tag ([#1](https://github.com/norbertvannobelen/gclouddatastore/pull/1))
+
+Commit: [d93cd52](https://github.com/norbertvannobelen/gclouddatastore/commit/d93cd52379841abebbc5a5f1f58914149ca57c5d).
+
+#### Breaking changes
+
+- Struct fields and `datastore.Property` values are **excluded from Datastore indexes by default**. Opt in with the `datastore:",index"` struct tag (or `name,index`), `datastore.RegisterIndexedFields`, or `datastore.Indexed(name, value)` for manual `PropertyLoadSaver` code.
+- `Property.NoIndex` is replaced by opt-in `Property.Index` (semantics inverted: old default indexed → set `Index: true` where needed).
+
+#### Features
+
+- Struct tag parsing: `index` supported; `index` and legacy `noindex` cannot be combined.
+- `RegisterIndexedFields(typ, paths...)` for tag-free indexing on selected field paths.
+- Tag merging so `omitempty` / `flatten` alone do not opt fields into indexes.
+- Load path: set `Property.Index` from `ExcludeFromIndexes`.
+
+#### Other
+
+- Documentation (`README.md`, `doc.go`) and tests/examples updated; integration test and copyright notice fixes.
+
+Indexing defaults are aimed at lower index storage and backup or snapshot cost when most properties are not queried; fields used in filters, orders, or projections must be explicitly indexed, and composite indexes may need to be created or adjusted accordingly.
+
+### 2026-02-04 — Initial fork
+
+Commit: [18cd5e1](https://github.com/norbertvannobelen/gclouddatastore/commit/18cd5e13ce05b546e3efe97aef95eaef6394ace9).
+
+#### Features
+
+- **Partial object parsing**: load entities into structs that only declare a subset of properties; extra Datastore fields are skipped instead of causing `ErrFieldMismatch`.
+- **GetAllWithUnparsedFields**: returns loaded entities plus metadata for properties that could not be parsed (name → type string).
+- **FilterField**: automatic casting of custom types (for example enums or named numeric types) to underlying base types for query filters.
+- **Count**: uses GQL aggregation for server-side counts instead of loading all matching entities.
+
+---
+
+## Upstream history (`google-cloud-go` / `cloud.google.com/go/datastore`)
+
+Release notes below are from the upstream module and are kept here for reference; they describe the vendored API lineage, not additional fork-only behavior.
+
 ## [1.21.0](https://github.com/googleapis/google-cloud-go/compare/datastore/v1.20.0...datastore/v1.21.0) (2025-10-20)
 
 
