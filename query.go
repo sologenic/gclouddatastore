@@ -112,10 +112,10 @@ func (pf PropertyFilter) toProto() (*pb.Filter, error) {
 	if pf.FieldName == "" {
 		return nil, errors.New("datastore: empty query filter field name")
 	}
-	
+
 	// Auto-cast custom types to base types before proto conversion
 	castValue := autoCastFilterValue(pf.Value)
-	
+
 	v, err := interfaceToProto(reflect.ValueOf(castValue).Interface(), false)
 	if err != nil {
 		return nil, fmt.Errorf("datastore: bad query filter value type: %w", err)
@@ -146,12 +146,12 @@ func autoCastFilterValue(v interface{}) interface{} {
 	if v == nil {
 		return nil
 	}
-	
+
 	rv := reflect.ValueOf(v)
 	if !rv.IsValid() {
 		return v
 	}
-	
+
 	// Handle arrays/slices for "in" and "not-in" operators
 	if rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array {
 		length := rv.Len()
@@ -161,7 +161,7 @@ func autoCastFilterValue(v interface{}) interface{} {
 		}
 		return result
 	}
-	
+
 	// Handle custom types by checking underlying kind
 	switch rv.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

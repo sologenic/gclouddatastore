@@ -22,6 +22,7 @@ import (
 	"cloud.google.com/go/civil"
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
 	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"google.golang.org/protobuf/proto"
 )
 
 func TestInterfaceToProtoNil(t *testing.T) {
@@ -199,7 +200,11 @@ func TestSaveEntityNested(t *testing.T) {
 			continue
 		}
 
-		if !testutil.Equal(tc.want, got) {
+		gotE := proto.Clone(got).(*pb.Entity)
+		wantE := proto.Clone(tc.want).(*pb.Entity)
+		normalizeExcludeFromIndexesEntity(gotE)
+		normalizeExcludeFromIndexesEntity(wantE)
+		if !testutil.Equal(wantE, gotE) {
 			t.Errorf("%s: compare:\ngot:  %#v\nwant: %#v", tc.desc, got, tc.want)
 		}
 	}

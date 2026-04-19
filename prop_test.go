@@ -21,7 +21,39 @@ import (
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
 	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"google.golang.org/protobuf/proto"
 )
+
+// normalizeExcludeFromIndexesEntity clears ExcludeFromIndexes on all values in a tree so
+// golden entities can omit that field while matching save output under default noindex.
+func normalizeExcludeFromIndexesEntity(ent *pb.Entity) {
+	if ent == nil {
+		return
+	}
+	for _, v := range ent.Properties {
+		normalizeExcludeFromIndexesValue(v)
+	}
+}
+
+func normalizeExcludeFromIndexesValue(v *pb.Value) {
+	if v == nil {
+		return
+	}
+	v.ExcludeFromIndexes = false
+	switch x := v.ValueType.(type) {
+	case *pb.Value_EntityValue:
+		if x.EntityValue != nil {
+			normalizeExcludeFromIndexesEntity(x.EntityValue)
+		}
+	case *pb.Value_ArrayValue:
+		if x.ArrayValue == nil {
+			return
+		}
+		for _, el := range x.ArrayValue.Values {
+			normalizeExcludeFromIndexesValue(el)
+		}
+	}
+}
 
 func TestLoadSavePLS(t *testing.T) {
 	type testCase struct {
@@ -612,7 +644,11 @@ func TestLoadSavePLS(t *testing.T) {
 				t.Errorf("%s: save: %v", tc.desc, err)
 				continue
 			}
-			if !testutil.Equal(e, tc.wantSave) {
+			gotE := proto.Clone(e).(*pb.Entity)
+			wantE := proto.Clone(tc.wantSave).(*pb.Entity)
+			normalizeExcludeFromIndexesEntity(gotE)
+			normalizeExcludeFromIndexesEntity(wantE)
+			if !testutil.Equal(gotE, wantE) {
 				t.Errorf("%s: save: \ngot:  %+v\nwant: %+v", tc.desc, e, tc.wantSave)
 				continue
 			}

@@ -60,10 +60,11 @@ type Property struct {
 	// a nil-valued property into a struct will set that field to the zero
 	// value.
 	Value interface{}
-	// NoIndex is whether the datastore cannot index this property.
-	// If NoIndex is set to false, []byte and string values are limited to
-	// 1500 bytes.
-	NoIndex bool
+	// Index is whether this property may be indexed (single-property and
+	// composite indexes). The zero value false excludes the property from
+	// indexes. Set Index to true for fields you filter, sort, or project on
+	// in queries. Indexed string and []byte values must be at most 1500 bytes.
+	Index bool
 }
 
 // An Entity is the value type for a nested struct.
@@ -105,6 +106,11 @@ func (l *PropertyList) Load(p []Property) error {
 // Save saves all of l's properties as a slice of Properties.
 func (l *PropertyList) Save() ([]Property, error) {
 	return *l, nil
+}
+
+// Indexed returns a Property with Index set to true (eligible for indexing).
+func Indexed(name string, value interface{}) Property {
+	return Property{Name: name, Value: value, Index: true}
 }
 
 // validPropertyName returns whether name consists of one or more valid Go
@@ -156,10 +162,15 @@ func parseTag(t reflect.StructTag) (name string, keep bool, other interface{}, e
 				opts.omitEmpty = true
 			case "noindex":
 				opts.noIndex = true
+			case "index":
+				opts.index = true
 			default:
 				err = fmt.Errorf("datastore: struct tag has invalid option: %q", p)
 				return "", false, nil, err
 			}
+		}
+		if opts.index && opts.noIndex {
+			return "", false, nil, fmt.Errorf("datastore: struct tag cannot use both index and noindex")
 		}
 		other = opts
 	}

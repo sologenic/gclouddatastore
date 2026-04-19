@@ -538,7 +538,7 @@ func loadEntityToStructWithUnparsed(dst interface{}, ent *Entity) (map[string]st
 				break
 			}
 		}
-		
+
 		errStr := l.load(pls.codec, pls.v, p, prev)
 		if !fieldExists {
 			// Field doesn't exist in struct - it's unparsed
@@ -549,7 +549,7 @@ func loadEntityToStructWithUnparsed(dst interface{}, ent *Entity) (map[string]st
 		}
 		// If fieldExists && errStr == "", field was successfully loaded
 	}
-	
+
 	// Only return error for type mismatches, not for unparsed fields
 	if errReason != "" && errReason != "no such struct field" && errReason != "cannot set struct field" {
 		return unparsed, &ErrFieldMismatch{
@@ -603,16 +603,16 @@ func protoToEntity(src *pb.Entity) (*Entity, error) {
 		if err != nil {
 			return nil, err
 		}
-		noIndex := val.ExcludeFromIndexes
+		excl := val.ExcludeFromIndexes
 		if array := val.GetArrayValue(); array != nil {
 			if values := array.GetValues(); len(values) > 0 {
-				noIndex = values[0].ExcludeFromIndexes
+				excl = values[0].ExcludeFromIndexes
 			}
 		}
 		props = append(props, Property{
-			Name:    name,
-			Value:   v,
-			NoIndex: noIndex,
+			Name:  name,
+			Value: v,
+			Index: !excl,
 		})
 	}
 	var key *Key

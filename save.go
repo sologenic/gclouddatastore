@@ -29,6 +29,7 @@ import (
 
 type saveOpts struct {
 	noIndex   bool
+	index     bool // tag "index": opt in to indexing
 	flatten   bool
 	omitEmpty bool
 }
@@ -182,8 +183,8 @@ func reflectFieldSave(props *[]Property, p Property, name string, opts saveOpts,
 // TODO(djd): Convert this and below to return ([]Property, error).
 func saveStructProperty(props *[]Property, name string, opts saveOpts, v reflect.Value) error {
 	p := Property{
-		Name:    name,
-		NoIndex: opts.noIndex,
+		Name:  name,
+		Index: !opts.noIndex,
 	}
 
 	if opts.omitEmpty && isEmptyValue(v) {
@@ -320,15 +321,30 @@ func (s structPLS) save(props *[]Property, opts saveOpts, prefix string) error {
 			continue
 		}
 
-		var tagOpts saveOpts
+		tagOpts := saveOpts{noIndex: true}
 		if f.ParsedTag != nil {
-			tagOpts = f.ParsedTag.(saveOpts)
+			t := f.ParsedTag.(saveOpts)
+			tagOpts.flatten = t.flatten
+			tagOpts.omitEmpty = t.omitEmpty
+			tagOpts.index = t.index
+			if t.noIndex {
+				tagOpts.noIndex = true
+			}
+			if t.index {
+				tagOpts.noIndex = false
+			}
 		}
 
 		var opts1 saveOpts
 		opts1.noIndex = opts.noIndex || tagOpts.noIndex
 		opts1.flatten = opts.flatten || tagOpts.flatten
 		opts1.omitEmpty = tagOpts.omitEmpty // don't propagate
+		if tagOpts.index {
+			opts1.noIndex = false
+		}
+		if isRegisteredIndexed(s.v.Type(), name) {
+			opts1.noIndex = false
+		}
 		if err := saveStructProperty(props, name, opts1, v); err != nil {
 			return err
 		}
@@ -370,11 +386,12 @@ func propertiesToProto(key *Key, props []Property) (*pb.Entity, error) {
 			continue
 		}
 
-		val, err := interfaceToProto(p.Value, p.NoIndex)
+		excl := !p.Index
+		val, err := interfaceToProto(p.Value, excl)
 		if err != nil {
 			return nil, fmt.Errorf("datastore: %v for a Property with Name %q", err, p.Name)
 		}
-		if !p.NoIndex {
+		if p.Index {
 			rVal := reflect.ValueOf(p.Value)
 			if rVal.Kind() == reflect.Slice && rVal.Type().Elem().Kind() != reflect.Uint8 {
 				indexedProps += rVal.Len()
@@ -394,8 +411,8 @@ func propertiesToProto(key *Key, props []Property) (*pb.Entity, error) {
 	return e, nil
 }
 
-func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
-	val := &pb.Value{ExcludeFromIndexes: noIndex}
+func interfaceToProto(iv interface{}, excludeFromIndexes bool) (*pb.Value, error) {
+	val := &pb.Value{ExcludeFromIndexes: excludeFromIndexes}
 	switch v := iv.(type) {
 	case int:
 		val.ValueType = &pb.Value_IntegerValue{IntegerValue: int64(v)}
@@ -406,7 +423,7 @@ func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
 	case bool:
 		val.ValueType = &pb.Value_BooleanValue{BooleanValue: v}
 	case string:
-		if len(v) > 1500 && !noIndex {
+		if len(v) > 1500 && !excludeFromIndexes {
 			return nil, errors.New("string property too long to index")
 		}
 		if !utf8.ValidString(v) {
@@ -440,7 +457,7 @@ func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
 			Nanos:   int32(v.Nanosecond()),
 		}}
 	case []byte:
-		if len(v) > 1500 && !noIndex {
+		if len(v) > 1500 && !excludeFromIndexes {
 			return nil, errors.New("[]byte property too long to index")
 		}
 		val.ValueType = &pb.Value_BlobValue{BlobValue: v}
@@ -453,7 +470,7 @@ func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
 	case []interface{}:
 		arr := make([]*pb.Value, 0, len(v))
 		for i, v := range v {
-			elem, err := interfaceToProto(v, noIndex)
+			elem, err := interfaceToProto(v, excludeFromIndexes)
 			if err != nil {
 				return nil, fmt.Errorf("%v at index %d", err, i)
 			}
@@ -472,7 +489,7 @@ func interfaceToProto(iv interface{}, noIndex bool) (*pb.Value, error) {
 				val.ValueType = &pb.Value_NullValue{}
 				return val, nil
 			}
-			return interfaceToProto(rv.Elem().Interface(), noIndex)
+			return interfaceToProto(rv.Elem().Interface(), excludeFromIndexes)
 		} else {
 			return nil, fmt.Errorf("invalid Value type %T", iv)
 		}

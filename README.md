@@ -17,6 +17,8 @@ This fork includes the following improvements over the original Google package:
 
 4. **Optimized Count Function**: The `Count()` function now uses GQL aggregation queries for efficient server-side counting instead of loading all records into memory.
 
+5. **Default no index**: Struct fields and `datastore.Property` values are excluded from Datastore indexes unless you opt in. Use the `index` struct tag, `datastore.RegisterIndexedFields`, or `datastore.Indexed(name, value)` for manual `PropertyLoadSaver` code. This reduces index storage and avoids tagging every large blob with `noindex`.
+
 ### License
 
 This package is licensed under the Apache License 2.0, same as the original Google package. See [LICENSE](LICENSE) for details.
@@ -121,8 +123,11 @@ count, err := client.Count(ctx, datastore.NewQuery("User").
 To migrate from `cloud.google.com/go/datastore`:
 
 1. Update import: `cloud.google.com/go/datastore` → `github.com/norbertvannobelen/gclouddatastore`
-2. No code changes required - API is fully compatible
-3. Enjoy the new features: partial parsing, auto-casting, and optimized counts
+2. Add `datastore:",index"` (or `name,index` with a name prefix) on **every struct field** you query with `Filter`, `FilterField`, `Order`, or projections. Fields omitted from indexes are not queryable the same way as before.
+3. **Property / PropertyLoadSaver**: Replace `NoIndex bool` with `Index bool`. Old `NoIndex: false` (default) meant “indexed” → set `Index: true`. Old `NoIndex: true` → omit `Index` or `Index: false`.
+4. Deploy or adjust composite indexes in your project if query fields change.
+
+Other fork features: partial parsing, auto-casting in filters, optimized `Count`, and `GetAllWithUnparsedFields` behave as documented above.
 
 ### Changes from Original Package
 
@@ -130,5 +135,4 @@ To migrate from `cloud.google.com/go/datastore`:
 - **GetAllWithUnparsedFields**: New function for getting unparsed field information
 - **FilterField Auto-Casting**: Custom types automatically converted to base types
 - **Count Optimization**: Uses GQL aggregation instead of loading records
-
-All changes maintain backward compatibility with the original API.
+- **Indexing defaults**: Excluded from indexes by default; explicit `index` tag or `RegisterIndexedFields` to opt in (`Property` uses `Index` instead of `NoIndex`)

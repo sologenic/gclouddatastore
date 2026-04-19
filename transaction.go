@@ -21,8 +21,8 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
 	gax "github.com/googleapis/gax-go/v2"
+	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"

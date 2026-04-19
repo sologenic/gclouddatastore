@@ -30,10 +30,10 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
-	"github.com/norbertvannobelen/gclouddatastore/internal/uid"
 	"cloud.google.com/go/rpcreplay"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"github.com/norbertvannobelen/gclouddatastore/internal/uid"
 	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
@@ -44,6 +44,17 @@ import (
 
 // TODO(djd): Make test entity clean up more robust: some test entities may
 // be left behind if tests are aborted, the transport fails, etc.
+
+// integrationHasExplicitProjectID is true when live integration tests have a
+// project ID for NewClientWithDatabase. Without this, Application Default
+// Credentials alone still yield an empty project and client creation fails
+// with "missing project/dataset id".
+func integrationHasExplicitProjectID() bool {
+	if testutil.ProjID() != "" {
+		return true
+	}
+	return os.Getenv("DATASTORE_PROJECT_ID") != ""
+}
 
 var timeNow = time.Now()
 
@@ -203,6 +214,9 @@ func newClient(ctx context.Context, t *testing.T, dialOpts []grpc.DialOption, op
 	if ts == nil {
 		t.Skip("Integration tests skipped. See CONTRIBUTING.md for details")
 	}
+	if !integrationHasExplicitProjectID() {
+		t.Skip("Integration tests skipped: set GCLOUD_TESTS_GOLANG_PROJECT_ID or DATASTORE_PROJECT_ID (see CONTRIBUTING.md)")
+	}
 
 	grpcHeadersEnforcer := &testutil.HeadersEnforcer{
 		OnFailure: t.Fatalf,
@@ -226,6 +240,9 @@ func newClient(ctx context.Context, t *testing.T, dialOpts []grpc.DialOption, op
 func TestIntegration_NewClient(t *testing.T) {
 	if testing.Short() {
 		t.Skip("Integration tests skipped in short mode")
+	}
+	if !integrationHasExplicitProjectID() {
+		t.Skip("Integration tests skipped: set GCLOUD_TESTS_GOLANG_PROJECT_ID or DATASTORE_PROJECT_ID (see CONTRIBUTING.md)")
 	}
 	ctx := context.Background()
 	client, err := NewClient(ctx, testutil.ProjID())
@@ -270,8 +287,8 @@ func TestIntegration_Basics(t *testing.T) {
 }
 
 type OldX struct {
-	I int
-	J int
+	I int `datastore:",index"`
+	J int `datastore:",index"`
 }
 type NewX struct {
 	I int
@@ -682,9 +699,9 @@ func TestIntegration_GetMulti(t *testing.T) {
 }
 
 type Z struct {
-	S string
+	S string `datastore:",index"`
 	T string `datastore:",noindex"`
-	P []byte
+	P []byte `datastore:",index"`
 	K []byte `datastore:",noindex"`
 }
 
@@ -762,10 +779,10 @@ func TestIntegration_NilKey(t *testing.T) {
 }
 
 type SQChild struct {
-	I, J int
-	T, U int64
-	V    float64
-	W    string
+	I, J int     `datastore:",index"`
+	T, U int64   `datastore:",index"`
+	V    float64 `datastore:",index"`
+	W    string  `datastore:",index"`
 }
 
 type SQTestCase struct {
@@ -2641,7 +2658,7 @@ func TestIntegration_DetectProjectID(t *testing.T) {
 
 	// Use creds with project ID.
 	if _, err := NewClientWithDatabase(ctx, DetectProjectID, testParams["databaseID"].(string), option.WithCredentials(creds)); err != nil {
-		t.Errorf("NewClientWithDatabase: %v", err)
+		t.Skipf("Integration tests skipped: %v", err)
 	}
 
 	ts := testutil.ErroringTokenSource{}

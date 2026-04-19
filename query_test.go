@@ -25,8 +25,8 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -260,32 +260,38 @@ func TestSimpleQuery(t *testing.T) {
 		{
 			Name:  "Height",
 			Value: int64(32),
+			Index: true,
 		},
 		{
 			Name:  "Name",
 			Value: "George",
+			Index: true,
 		},
 	}
 	pList2 := PropertyList{
 		{
 			Name:  "Name",
 			Value: "Rufus",
+			Index: true,
 		},
 	}
 	pMap1 := PropertyMap{
 		"Name": Property{
 			Name:  "Name",
 			Value: "George",
+			Index: true,
 		},
 		"Height": Property{
 			Name:  "Height",
 			Value: int64(32),
+			Index: true,
 		},
 	}
 	pMap2 := PropertyMap{
 		"Name": Property{
 			Name:  "Name",
 			Value: "Rufus",
+			Index: true,
 		},
 	}
 
@@ -1107,7 +1113,7 @@ func TestGetAllWithUnparsedFields(t *testing.T) {
 			queryFn: func(req *pb.RunQueryRequest) (*pb.RunQueryResponse, error) {
 				return &pb.RunQueryResponse{
 					Batch: &pb.QueryResultBatch{
-						MoreResults: pb.QueryResultBatch_NO_MORE_RESULTS,
+						MoreResults:      pb.QueryResultBatch_NO_MORE_RESULTS,
 						EntityResultType: pb.EntityResult_FULL,
 						EntityResults: []*pb.EntityResult{
 							{
@@ -1129,7 +1135,7 @@ func TestGetAllWithUnparsedFields(t *testing.T) {
 										"Name":   {ValueType: &pb.Value_StringValue{StringValue: "Rufus"}},
 										"Height": {ValueType: &pb.Value_IntegerValue{IntegerValue: 28}},
 										"Extra1": {ValueType: &pb.Value_StringValue{StringValue: "extra1"}}, // Unparsed
-										"Extra2": {ValueType: &pb.Value_IntegerValue{IntegerValue: 42}},   // Unparsed
+										"Extra2": {ValueType: &pb.Value_IntegerValue{IntegerValue: 42}},     // Unparsed
 									},
 								},
 							},
@@ -1186,7 +1192,7 @@ func TestGetAllWithUnparsedFields(t *testing.T) {
 				queryFn: func(req *pb.RunQueryRequest) (*pb.RunQueryResponse, error) {
 					return &pb.RunQueryResponse{
 						Batch: &pb.QueryResultBatch{
-							MoreResults: pb.QueryResultBatch_NO_MORE_RESULTS,
+							MoreResults:      pb.QueryResultBatch_NO_MORE_RESULTS,
 							EntityResultType: pb.EntityResult_FULL,
 							EntityResults: []*pb.EntityResult{
 								{
@@ -1227,11 +1233,11 @@ func TestCountFunction(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		desc     string
-		setupFn  func() *Client
-		query    *Query
-		want     int
-		wantErr  bool
+		desc    string
+		setupFn func() *Client
+		query   *Query
+		want    int
+		wantErr bool
 	}{
 		{
 			desc: "basic count query",
@@ -1369,7 +1375,7 @@ func TestFilterFieldAutoCasting(t *testing.T) {
 	// Define custom types that should be auto-cast
 	type Status int
 	const (
-		StatusActive Status = 1
+		StatusActive   Status = 1
 		StatusInactive Status = 2
 	)
 

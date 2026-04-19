@@ -21,10 +21,10 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
+	gax "github.com/googleapis/gax-go/v2"
 	"github.com/norbertvannobelen/gclouddatastore/internal"
 	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
 	"github.com/norbertvannobelen/gclouddatastore/internal/version"
-	gax "github.com/googleapis/gax-go/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

@@ -23,8 +23,8 @@ import (
 
 	"cloud.google.com/go/civil"
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -644,8 +644,8 @@ func TestLoadArrayIndex(t *testing.T) {
 	want := &Entity{
 		Key: testKey0,
 		Properties: []Property{
-			{Name: "indexed", Value: []interface{}{"1", "2"}, NoIndex: false},
-			{Name: "non-indexed", Value: []interface{}{"3", "4"}, NoIndex: true},
+			{Name: "indexed", Value: []interface{}{"1", "2"}, Index: true},
+			{Name: "non-indexed", Value: []interface{}{"3", "4"}},
 		},
 	}
 
@@ -658,10 +658,10 @@ func TestLoadArrayIndex(t *testing.T) {
 		return p1.Name < p2.Name
 	}
 	if !testutil.Equal(want.Properties, dst.Properties, cmpopts.SortSlices(cmpProperties)) {
-		t.Errorf("NoIndex should be correct: Property:\ngot:  %#v\nwant: %#v", dst, want)
+		t.Errorf("Property.Index mismatch:\ngot:  %#v\nwant: %#v", dst, want)
 	}
 	if !testutil.Equal(want.Key, dst.Key) {
-		t.Errorf("NoIndex should be correct: Key:\ngot:  %#v\nwant: %#v", dst, want)
+		t.Errorf("Key mismatch:\ngot:  %#v\nwant: %#v", dst, want)
 	}
 }
 
@@ -1402,12 +1402,12 @@ func TestPartialObjectParsing(t *testing.T) {
 
 	// Define a struct with all fields (for positive test)
 	type FullStruct struct {
-		Name     string
-		Age      int64
-		Email    string
-		Address  string
-		Phone    string
-		Country  string
+		Name    string
+		Age     int64
+		Email   string
+		Address string
+		Phone   string
+		Country string
 	}
 
 	testCases := []struct {
@@ -1427,7 +1427,7 @@ func TestPartialObjectParsing(t *testing.T) {
 					"Age":     {ValueType: &pb.Value_IntegerValue{IntegerValue: 30}},
 					"Email":   {ValueType: &pb.Value_StringValue{StringValue: "john@example.com"}},
 					"Address": {ValueType: &pb.Value_StringValue{StringValue: "123 Main St"}}, // Extra field - should be skipped
-					"Phone":   {ValueType: &pb.Value_StringValue{StringValue: "555-1234"}},     // Extra field - should be skipped
+					"Phone":   {ValueType: &pb.Value_StringValue{StringValue: "555-1234"}},    // Extra field - should be skipped
 				},
 			},
 			dst:         &PartialStruct{},
@@ -1500,7 +1500,7 @@ func TestPartialObjectParsing(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			err := loadEntityProto(tc.dst, tc.src)
-			
+
 			if tc.wantErr {
 				if err == nil {
 					t.Errorf("expected error but got none")

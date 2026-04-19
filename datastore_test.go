@@ -23,8 +23,8 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"google.golang.org/api/option"
 	"google.golang.org/api/transport/grpc"
 	"google.golang.org/protobuf/proto"
@@ -211,7 +211,7 @@ func TestQueryConstruction(t *testing.T) {
 func TestPutWithOptions(t *testing.T) {
 	ctx := context.Background()
 	type S struct {
-		A int
+		A int `datastore:",index"`
 	}
 
 	key := NameKey("testKind", "test", nil)
@@ -254,7 +254,7 @@ func TestPutWithOptions(t *testing.T) {
 func TestPutMultiWithOptions(t *testing.T) {
 	ctx := context.Background()
 	type S struct {
-		A int
+		A int `datastore:",index"`
 	}
 
 	keys := []*Key{
@@ -624,7 +624,6 @@ func TestNoIndexOnSliceProperties(t *testing.T) {
 				"short",
 				strings.Repeat("a", 1503),
 			},
-			NoIndex: true,
 		},
 	}
 	key := NameKey("dummy", "dummy", nil)

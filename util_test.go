@@ -25,8 +25,8 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"github.com/google/go-cmp/cmp"
+	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
 	"google.golang.org/grpc"
 )
 
@@ -82,7 +82,7 @@ type B0 struct {
 }
 
 type B1 struct {
-	B []int8
+	B []int8 `datastore:",index"`
 }
 
 type B2 struct {
@@ -246,9 +246,9 @@ type X3 struct {
 }
 
 type Y0 struct {
-	B bool
-	F []float64
-	G []float64
+	B bool      `datastore:",index"`
+	F []float64 `datastore:",index"`
+	G []float64 `datastore:",index"`
 }
 
 type Y1 struct {
@@ -326,6 +326,10 @@ type InvalidTagged3 struct {
 
 type InvalidTagged4 struct {
 	X string `datastore:",garbage"`
+}
+
+type InvalidTagged5 struct {
+	X int `datastore:",index,noindex"`
 }
 
 type Inner1 struct {
@@ -624,7 +628,7 @@ var testCases = []testCase{
 		"geopoint as props",
 		&G0{G: testGeoPt0},
 		&PropertyList{
-			Property{Name: "G", Value: testGeoPt0, NoIndex: false},
+			Property{Name: "G", Value: testGeoPt0},
 		},
 		"",
 		"",
@@ -647,7 +651,7 @@ var testCases = []testCase{
 		"omit empty",
 		&Omit{},
 		&PropertyList{
-			Property{Name: "St", Value: "", NoIndex: false},
+			Property{Name: "St", Value: ""},
 		},
 		"",
 		"",
@@ -661,11 +665,11 @@ var testCases = []testCase{
 			F: []int{11},
 		},
 		&PropertyList{
-			Property{Name: "A", Value: "a", NoIndex: false},
-			Property{Name: "Bb", Value: int64(10), NoIndex: false},
-			Property{Name: "C", Value: true, NoIndex: true},
-			Property{Name: "F", Value: []interface{}{int64(11)}, NoIndex: false},
-			Property{Name: "St", Value: "", NoIndex: false},
+			Property{Name: "A", Value: "a"},
+			Property{Name: "Bb", Value: int64(10)},
+			Property{Name: "C", Value: true},
+			Property{Name: "F", Value: []interface{}{int64(11)}},
+			Property{Name: "St", Value: ""},
 		},
 		"",
 		"",
@@ -680,11 +684,11 @@ var testCases = []testCase{
 			S: S{St: "string"},
 		},
 		&PropertyList{
-			Property{Name: "A", Value: "a", NoIndex: false},
-			Property{Name: "Bb", Value: int64(10), NoIndex: false},
-			Property{Name: "C", Value: true, NoIndex: true},
-			Property{Name: "F", Value: []interface{}{int64(11)}, NoIndex: false},
-			Property{Name: "St", Value: "string", NoIndex: false},
+			Property{Name: "A", Value: "a"},
+			Property{Name: "Bb", Value: int64(10)},
+			Property{Name: "C", Value: true},
+			Property{Name: "F", Value: []interface{}{int64(11)}},
+			Property{Name: "St", Value: "string"},
 		},
 		"",
 		"",
@@ -702,18 +706,18 @@ var testCases = []testCase{
 			Property{Name: "No", Value: []interface{}{
 				&Entity{
 					Properties: []Property{
-						{Name: "A", Value: "", NoIndex: false},
-						{Name: "Bb", Value: int64(0), NoIndex: false},
-						{Name: "C", Value: false, NoIndex: true},
+						{Name: "A", Value: ""},
+						{Name: "Bb", Value: int64(0)},
+						{Name: "C", Value: false},
 					},
 				},
-			}, NoIndex: false},
+			}},
 			Property{Name: "Ss", Value: &Entity{
 				Properties: []Property{
-					{Name: "St", Value: "", NoIndex: false},
+					{Name: "St", Value: ""},
 				},
-			}, NoIndex: false},
-			Property{Name: "St", Value: "", NoIndex: false},
+			}},
+			Property{Name: "St", Value: ""},
 		},
 		"",
 		"",
@@ -771,7 +775,7 @@ var testCases = []testCase{
 		"time as props",
 		&T{T: time.Unix(1e9, 0)},
 		&PropertyList{
-			Property{Name: "T", Value: time.Unix(1e9, 0), NoIndex: false},
+			Property{Name: "T", Value: time.Unix(1e9, 0)},
 		},
 		"",
 		"",
@@ -963,7 +967,7 @@ var testCases = []testCase{
 	{
 		"[]byte must be noindex",
 		&PropertyList{
-			Property{Name: "B", Value: makeUint8Slice(1501), NoIndex: false},
+			Property{Name: "B", Value: makeUint8Slice(1501), Index: true},
 		},
 		nil,
 		"[]byte property too long to index",
@@ -972,7 +976,7 @@ var testCases = []testCase{
 	{
 		"string must be noindex",
 		&PropertyList{
-			Property{Name: "B", Value: strings.Repeat("x", 1501), NoIndex: false},
+			Property{Name: "B", Value: strings.Repeat("x", 1501), Index: true},
 		},
 		nil,
 		"string property too long to index",
@@ -984,7 +988,7 @@ var testCases = []testCase{
 			Property{Name: "B", Value: []interface{}{
 				[]byte("short"),
 				makeUint8Slice(1501),
-			}, NoIndex: false},
+			}, Index: true},
 		},
 		nil,
 		"[]byte property too long to index",
@@ -996,7 +1000,7 @@ var testCases = []testCase{
 			Property{Name: "B", Value: []interface{}{
 				"short",
 				strings.Repeat("x", 1501),
-			}, NoIndex: false},
+			}, Index: true},
 		},
 		nil,
 		"string property too long to index",
@@ -1008,12 +1012,12 @@ var testCases = []testCase{
 		&PropertyList{
 			// A and B are renamed to a and b; A and C are noindex, I is ignored.
 			// Order is sorted as per byName.
-			Property{Name: "C", Value: int64(3), NoIndex: true},
-			Property{Name: "D", Value: int64(4), NoIndex: false},
-			Property{Name: "E", Value: int64(5), NoIndex: false},
-			Property{Name: "J", Value: int64(7), NoIndex: true},
-			Property{Name: "a", Value: int64(1), NoIndex: true},
-			Property{Name: "b", Value: []interface{}{int64(21), int64(22), int64(23)}, NoIndex: false},
+			Property{Name: "C", Value: int64(3)},
+			Property{Name: "D", Value: int64(4)},
+			Property{Name: "E", Value: int64(5)},
+			Property{Name: "J", Value: int64(7)},
+			Property{Name: "a", Value: int64(1)},
+			Property{Name: "b", Value: []interface{}{int64(21), int64(22), int64(23)}},
 		},
 		"",
 		"",
@@ -1054,6 +1058,13 @@ var testCases = []testCase{
 		"",
 	},
 	{
+		"invalid tagged index and noindex",
+		&InvalidTagged5{X: 1},
+		&InvalidTagged5{},
+		"struct tag cannot use both index and noindex",
+		"",
+	},
+	{
 		"doubler",
 		&Doubler{S: "s", I: 1, B: true},
 		&Doubler{S: "ss", I: 2, B: true},
@@ -1064,8 +1075,8 @@ var testCases = []testCase{
 		"save struct load props",
 		&X0{S: "s", I: 1},
 		&PropertyList{
-			Property{Name: "I", Value: int64(1), NoIndex: false},
-			Property{Name: "S", Value: "s", NoIndex: false},
+			Property{Name: "I", Value: int64(1)},
+			Property{Name: "S", Value: "s"},
 		},
 		"",
 		"",
@@ -1073,8 +1084,8 @@ var testCases = []testCase{
 	{
 		"save props load struct",
 		&PropertyList{
-			Property{Name: "I", Value: int64(1), NoIndex: false},
-			Property{Name: "S", Value: "s", NoIndex: false},
+			Property{Name: "I", Value: int64(1)},
+			Property{Name: "S", Value: "s"},
 		},
 		&X0{S: "s", I: 1},
 		"",
@@ -1083,13 +1094,13 @@ var testCases = []testCase{
 	{
 		"nil-value props",
 		&PropertyList{
-			Property{Name: "I", Value: nil, NoIndex: false},
-			Property{Name: "B", Value: nil, NoIndex: false},
-			Property{Name: "S", Value: nil, NoIndex: false},
-			Property{Name: "F", Value: nil, NoIndex: false},
-			Property{Name: "K", Value: nil, NoIndex: false},
-			Property{Name: "T", Value: nil, NoIndex: false},
-			Property{Name: "J", Value: []interface{}{nil, int64(7), nil}, NoIndex: false},
+			Property{Name: "I", Value: nil},
+			Property{Name: "B", Value: nil},
+			Property{Name: "S", Value: nil},
+			Property{Name: "F", Value: nil},
+			Property{Name: "K", Value: nil},
+			Property{Name: "T", Value: nil},
+			Property{Name: "J", Value: []interface{}{nil, int64(7), nil}},
 		},
 		&struct {
 			I int64
@@ -1130,13 +1141,13 @@ var testCases = []testCase{
 			},
 		},
 		&PropertyList{
-			Property{Name: "A", Value: int64(1), NoIndex: false},
-			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}, NoIndex: false},
-			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}, NoIndex: false},
-			Property{Name: "J.Y", Value: float64(3.14), NoIndex: true},
-			Property{Name: "K.X.WW", Value: int64(12), NoIndex: false},
-			Property{Name: "L.Y", Value: float64(2.71), NoIndex: false},
-			Property{Name: "Z", Value: true, NoIndex: false},
+			Property{Name: "A", Value: int64(1)},
+			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}},
+			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}},
+			Property{Name: "J.Y", Value: float64(3.14)},
+			Property{Name: "K.X.WW", Value: int64(12)},
+			Property{Name: "L.Y", Value: float64(2.71)},
+			Property{Name: "Z", Value: true},
 		},
 		"",
 		"",
@@ -1144,12 +1155,12 @@ var testCases = []testCase{
 	{
 		"load outer props flatten",
 		&PropertyList{
-			Property{Name: "A", Value: int64(1), NoIndex: false},
-			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}, NoIndex: false},
-			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}, NoIndex: false},
-			Property{Name: "J.Y", Value: float64(3.14), NoIndex: true},
-			Property{Name: "L.Y", Value: float64(2.71), NoIndex: false},
-			Property{Name: "Z", Value: true, NoIndex: false},
+			Property{Name: "A", Value: int64(1)},
+			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}},
+			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}},
+			Property{Name: "J.Y", Value: float64(3.14)},
+			Property{Name: "L.Y", Value: float64(2.71)},
+			Property{Name: "Z", Value: true},
 		},
 		&OuterFlatten{
 			A: 1,
@@ -1188,33 +1199,33 @@ var testCases = []testCase{
 			},
 		},
 		&PropertyList{
-			Property{Name: "A", Value: int64(1), NoIndex: false},
+			Property{Name: "A", Value: int64(1)},
 			Property{Name: "I", Value: []interface{}{
 				&Entity{
 					Properties: []Property{
-						{Name: "W", Value: int64(10), NoIndex: false},
-						{Name: "X", Value: "ten", NoIndex: false},
+						{Name: "W", Value: int64(10)},
+						{Name: "X", Value: "ten"},
 					},
 				},
 				&Entity{
 					Properties: []Property{
-						{Name: "W", Value: int64(20), NoIndex: false},
-						{Name: "X", Value: "twenty", NoIndex: false},
+						{Name: "W", Value: int64(20)},
+						{Name: "X", Value: "twenty"},
 					},
 				},
 				&Entity{
 					Properties: []Property{
-						{Name: "W", Value: int64(30), NoIndex: false},
-						{Name: "X", Value: "thirty", NoIndex: false},
+						{Name: "W", Value: int64(30)},
+						{Name: "X", Value: "thirty"},
 					},
 				},
-			}, NoIndex: false},
+			}},
 			Property{Name: "J", Value: &Entity{
 				Properties: []Property{
-					{Name: "Y", Value: float64(3.14), NoIndex: false},
+					{Name: "Y", Value: float64(3.14)},
 				},
-			}, NoIndex: false},
-			Property{Name: "Z", Value: true, NoIndex: false},
+			}},
+			Property{Name: "Z", Value: true},
 		},
 		"",
 		"",
@@ -1222,11 +1233,11 @@ var testCases = []testCase{
 	{
 		"save props load outer-equivalent",
 		&PropertyList{
-			Property{Name: "A", Value: int64(1), NoIndex: false},
-			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}, NoIndex: false},
-			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}, NoIndex: false},
-			Property{Name: "J.Y", Value: float64(3.14), NoIndex: false},
-			Property{Name: "Z", Value: true, NoIndex: false},
+			Property{Name: "A", Value: int64(1)},
+			Property{Name: "I.W", Value: []interface{}{int64(10), int64(20), int64(30)}},
+			Property{Name: "I.X", Value: []interface{}{"ten", "twenty", "thirty"}},
+			Property{Name: "J.Y", Value: float64(3.14)},
+			Property{Name: "Z", Value: true},
 		},
 		&OuterEquivalent{
 			A:     1,
@@ -1246,11 +1257,11 @@ var testCases = []testCase{
 				Properties: []Property{
 					{Name: "B3", Value: &Entity{
 						Properties: []Property{
-							{Name: "C4.C5", Value: int64(88), NoIndex: false},
+							{Name: "C4.C5", Value: int64(88)},
 						},
-					}, NoIndex: false},
+					}},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1262,11 +1273,11 @@ var testCases = []testCase{
 				Properties: []Property{
 					{Name: "B3", Value: &Entity{
 						Properties: []Property{
-							{Name: "C4.C5", Value: 99, NoIndex: false},
+							{Name: "C4.C5", Value: 99},
 						},
-					}, NoIndex: false},
+					}},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		&Dotted{A: DottedA{B: DottedB{C: 99}}},
 		"",
@@ -1451,85 +1462,85 @@ var testCases = []testCase{
 		&PropertyList{
 			Property{Name: "Blue", Value: &Entity{
 				Properties: []Property{
-					{Name: "I", Value: int64(0), NoIndex: false},
+					{Name: "I", Value: int64(0)},
 					{Name: "Nonymous", Value: []interface{}{
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "blu0", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "blu0"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "blu1", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "blu1"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "blu2", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "blu2"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "blu3", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "blu3"},
 							},
 						},
-					}, NoIndex: false},
-					{Name: "Other", Value: "", NoIndex: false},
-					{Name: "S", Value: "bleu", NoIndex: false},
+					}},
+					{Name: "Other", Value: ""},
+					{Name: "S", Value: "bleu"},
 				},
-			}, NoIndex: false},
+			}},
 			Property{Name: "green", Value: &Entity{
 				Properties: []Property{
-					{Name: "I", Value: int64(0), NoIndex: false},
+					{Name: "I", Value: int64(0)},
 					{Name: "Nonymous", Value: []interface{}{
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "verde0", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "verde0"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "verde1", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "verde1"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "verde2", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "verde2"},
 							},
 						},
-					}, NoIndex: false},
-					{Name: "Other", Value: "", NoIndex: false},
-					{Name: "S", Value: "vert", NoIndex: false},
+					}},
+					{Name: "Other", Value: ""},
+					{Name: "S", Value: "vert"},
 				},
-			}, NoIndex: false},
+			}},
 			Property{Name: "red", Value: &Entity{
 				Properties: []Property{
-					{Name: "I", Value: int64(0), NoIndex: false},
+					{Name: "I", Value: int64(0)},
 					{Name: "Nonymous", Value: []interface{}{
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "rosso0", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "rosso0"},
 							},
 						},
 						&Entity{
 							Properties: []Property{
-								{Name: "I", Value: int64(0), NoIndex: false},
-								{Name: "S", Value: "rosso1", NoIndex: false},
+								{Name: "I", Value: int64(0)},
+								{Name: "S", Value: "rosso1"},
 							},
 						},
-					}, NoIndex: false},
-					{Name: "Other", Value: "", NoIndex: false},
-					{Name: "S", Value: "rouge", NoIndex: false},
+					}},
+					{Name: "Other", Value: ""},
+					{Name: "S", Value: "rouge"},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1621,29 +1632,29 @@ var testCases = []testCase{
 			},
 		},
 		&PropertyList{
-			Property{Name: "A", Value: "anon", NoIndex: false},
+			Property{Name: "A", Value: "anon"},
 			Property{Name: "B", Value: &Entity{
 				Properties: []Property{
-					{Name: "A", Value: "b", NoIndex: false},
+					{Name: "A", Value: "b"},
 				},
 			}},
 			Property{Name: "D", Value: []interface{}{
 				&Entity{
 					Properties: []Property{
-						{Name: "A", Value: "slice0", NoIndex: false},
+						{Name: "A", Value: "slice0"},
 					},
 				},
 				&Entity{
 					Properties: []Property{
-						{Name: "A", Value: "slice1", NoIndex: false},
+						{Name: "A", Value: "slice1"},
 					},
 				},
-			}, NoIndex: false},
+			}},
 			Property{Name: "c", Value: &Entity{
 				Properties: []Property{
-					{Name: "A", Value: "c", NoIndex: true},
+					{Name: "A", Value: "c"},
 				},
-			}, NoIndex: true},
+			}},
 		},
 		"",
 		"",
@@ -1716,11 +1727,10 @@ var testCases = []testCase{
 			Property{Name: "N", Value: &Entity{
 				Key: testKey0,
 				Properties: []Property{
-					{Name: "I", Value: int64(12), NoIndex: false},
-					{Name: "S", Value: "abcd", NoIndex: false},
+					{Name: "I", Value: int64(12)},
+					{Name: "S", Value: "abcd"},
 				},
-			},
-				NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1731,10 +1741,10 @@ var testCases = []testCase{
 			Property{Name: "N", Value: &Entity{
 				Key: testKey0,
 				Properties: []Property{
-					{Name: "I", Value: int64(12), NoIndex: false},
-					{Name: "S", Value: "abcd", NoIndex: false},
+					{Name: "I", Value: int64(12)},
+					{Name: "S", Value: "abcd"},
 				},
-			}, NoIndex: false},
+			}},
 		},
 
 		&WithNestedEntityWithKey{
@@ -1755,9 +1765,9 @@ var testCases = []testCase{
 		&PropertyList{
 			Property{Name: "red", Value: &Entity{
 				Properties: []Property{
-					{Name: "C", Value: "s", NoIndex: false},
+					{Name: "C", Value: "s"},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1768,7 +1778,7 @@ var testCases = []testCase{
 			c4: c4{C: "s"},
 		},
 		&PropertyList{
-			Property{Name: "C", Value: "s", NoIndex: false},
+			Property{Name: "C", Value: "s"},
 		},
 		"",
 		"",
@@ -1785,10 +1795,10 @@ var testCases = []testCase{
 	{
 		"save props load structs with ragged fields",
 		&PropertyList{
-			Property{Name: "red.S", Value: "rot", NoIndex: false},
-			Property{Name: "green.Nonymous.I", Value: []interface{}{int64(10), int64(11), int64(12), int64(13)}, NoIndex: false},
-			Property{Name: "Blue.Nonymous.I", Value: []interface{}{int64(20), int64(21)}, NoIndex: false},
-			Property{Name: "Blue.Nonymous.S", Value: []interface{}{"blau0", "blau1", "blau2"}, NoIndex: false},
+			Property{Name: "red.S", Value: "rot"},
+			Property{Name: "green.Nonymous.I", Value: []interface{}{int64(10), int64(11), int64(12), int64(13)}},
+			Property{Name: "Blue.Nonymous.I", Value: []interface{}{int64(20), int64(21)}},
+			Property{Name: "Blue.Nonymous.S", Value: []interface{}{"blau0", "blau1", "blau2"}},
 		},
 		&N2{
 			N1: N1{
@@ -1828,16 +1838,16 @@ var testCases = []testCase{
 		&PropertyList{
 			Property{Name: "A", Value: &Entity{
 				Properties: []Property{
-					{Name: "X", Value: "", NoIndex: true},
-					{Name: "Y", Value: "", NoIndex: true},
+					{Name: "X", Value: ""},
+					{Name: "Y", Value: ""},
 				},
-			}, NoIndex: true},
+			}},
 			Property{Name: "B", Value: &Entity{
 				Properties: []Property{
-					{Name: "X", Value: "", NoIndex: true},
-					{Name: "Y", Value: "", NoIndex: false},
+					{Name: "X", Value: ""},
+					{Name: "Y", Value: ""},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1850,10 +1860,10 @@ var testCases = []testCase{
 		&PropertyList{
 			Property{Name: "foo", Value: &Entity{
 				Properties: []Property{
-					{Name: "W", Value: int64(0), NoIndex: false},
-					{Name: "X", Value: "", NoIndex: false},
+					{Name: "W", Value: int64(0)},
+					{Name: "X", Value: ""},
 				},
-			}, NoIndex: false},
+			}},
 		},
 		"",
 		"",
@@ -1911,7 +1921,7 @@ var testCases = []testCase{
 			i, J int64
 		}{i: 1, J: 2},
 		&PropertyList{
-			Property{Name: "J", Value: int64(2), NoIndex: false},
+			Property{Name: "J", Value: int64(2)},
 		},
 		"",
 		"",
@@ -1924,7 +1934,7 @@ var testCases = []testCase{
 			J: json.RawMessage("rawr"),
 		},
 		&PropertyList{
-			Property{Name: "J", Value: []byte("rawr"), NoIndex: false},
+			Property{Name: "J", Value: []byte("rawr")},
 		},
 		"",
 		"",
