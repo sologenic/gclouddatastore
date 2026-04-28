@@ -26,8 +26,8 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/protostruct"
-	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
+	"github.com/sologenic/gclouddatastore/internal/protostruct"
+	"github.com/sologenic/gclouddatastore/internal/trace"
 	"google.golang.org/api/iterator"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"

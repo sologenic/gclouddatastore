@@ -19,8 +19,8 @@ package admin_test
 import (
 	"context"
 
-	admin "github.com/norbertvannobelen/gclouddatastore/admin/apiv1"
-	adminpb "github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb"
+	admin "github.com/sologenic/gclouddatastore/admin/apiv1"
+	adminpb "github.com/sologenic/gclouddatastore/admin/apiv1/adminpb"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"google.golang.org/api/iterator"
 )
@@ -74,7 +74,7 @@ func ExampleDatastoreAdminClient_CreateIndex() {
 
 	req := &adminpb.CreateIndexRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#CreateIndexRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#CreateIndexRequest.
 	}
 	op, err := c.CreateIndex(ctx, req)
 	if err != nil {
@@ -104,7 +104,7 @@ func ExampleDatastoreAdminClient_DeleteIndex() {
 
 	req := &adminpb.DeleteIndexRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#DeleteIndexRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#DeleteIndexRequest.
 	}
 	op, err := c.DeleteIndex(ctx, req)
 	if err != nil {
@@ -134,7 +134,7 @@ func ExampleDatastoreAdminClient_ExportEntities() {
 
 	req := &adminpb.ExportEntitiesRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#ExportEntitiesRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#ExportEntitiesRequest.
 	}
 	op, err := c.ExportEntities(ctx, req)
 	if err != nil {
@@ -164,7 +164,7 @@ func ExampleDatastoreAdminClient_GetIndex() {
 
 	req := &adminpb.GetIndexRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#GetIndexRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#GetIndexRequest.
 	}
 	resp, err := c.GetIndex(ctx, req)
 	if err != nil {
@@ -189,7 +189,7 @@ func ExampleDatastoreAdminClient_ImportEntities() {
 
 	req := &adminpb.ImportEntitiesRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#ImportEntitiesRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#ImportEntitiesRequest.
 	}
 	op, err := c.ImportEntities(ctx, req)
 	if err != nil {
@@ -217,7 +217,7 @@ func ExampleDatastoreAdminClient_ListIndexes() {
 
 	req := &adminpb.ListIndexesRequest{
 		// TODO: Fill request struct fields.
-		// See https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb#ListIndexesRequest.
+		// See https://pkg.go.dev/github.com/sologenic/gclouddatastore/admin/apiv1/adminpb#ListIndexesRequest.
 	}
 	it := c.ListIndexes(ctx, req)
 	for {

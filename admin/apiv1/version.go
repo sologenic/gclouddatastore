@@ -16,7 +16,7 @@
 
 package admin
 
-import "github.com/norbertvannobelen/gclouddatastore/internal"
+import "github.com/sologenic/gclouddatastore/internal"
 
 func init() {
 	versionClient = internal.Version

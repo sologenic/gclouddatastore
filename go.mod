@@ -1,4 +1,4 @@
-module github.com/norbertvannobelen/gclouddatastore
+module github.com/sologenic/gclouddatastore
 
 go 1.25.5
 

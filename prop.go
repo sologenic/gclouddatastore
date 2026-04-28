@@ -21,7 +21,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/norbertvannobelen/gclouddatastore/internal/fields"
+	"github.com/sologenic/gclouddatastore/internal/fields"
 )
 
 // Entities with more than this many indexed properties will not be saved.

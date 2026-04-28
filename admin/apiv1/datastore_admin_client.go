@@ -26,7 +26,7 @@ import (
 	"net/url"
 	"time"
 
-	adminpb "github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb"
+	adminpb "github.com/sologenic/gclouddatastore/admin/apiv1/adminpb"
 	"cloud.google.com/go/longrunning"
 	lroauto "cloud.google.com/go/longrunning/autogen"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"

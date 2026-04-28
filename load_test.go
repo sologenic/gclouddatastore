@@ -24,7 +24,7 @@ import (
 	"cloud.google.com/go/civil"
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"github.com/sologenic/gclouddatastore/internal/testutil"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

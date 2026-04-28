@@ -24,7 +24,7 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
+	"github.com/sologenic/gclouddatastore/internal/trace"
 	"google.golang.org/api/option"
 	"google.golang.org/api/option/internaloption"
 	"google.golang.org/api/transport"

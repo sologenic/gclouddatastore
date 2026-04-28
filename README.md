@@ -1,6 +1,6 @@
 ## Cloud Datastore Go Client (Fork)
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/norbertvannobelen/gclouddatastore.svg)](https://pkg.go.dev/github.com/norbertvannobelen/gclouddatastore)
+[![Go Reference](https://pkg.go.dev/badge/github.com/sologenic/gclouddatastore.svg)](https://pkg.go.dev/github.com/sologenic/gclouddatastore)
 
 This is a fork of the [Google Cloud Datastore Go client library](https://github.com/googleapis/google-cloud-go/tree/main/datastore) with enhanced functionality for partial object parsing, improved query filtering, and optimized count operations.
 
@@ -11,7 +11,7 @@ As a bonus, the fork also drives down **data storage, backup, and snapshot** cos
 The package surface is **100% backwards compatible** with Google’s client and works as a **drop-in replacement**.
 
 **Original Package**: `cloud.google.com/go/datastore`  
-**This Fork**: `github.com/norbertvannobelen/gclouddatastore`
+**This Fork**: `github.com/sologenic/gclouddatastore`
 
 ### Key Enhancements
 
@@ -40,7 +40,7 @@ This package is licensed under the Apache License 2.0, same as the original Goog
 ### Installation
 
 ```bash
-go get github.com/norbertvannobelen/gclouddatastore
+go get github.com/sologenic/gclouddatastore
 ```
 
 ### Example Usage
@@ -50,7 +50,7 @@ go get github.com/norbertvannobelen/gclouddatastore
 First create a `datastore.Client` to use throughout your application:
 
 ```go
-import "github.com/norbertvannobelen/gclouddatastore"
+import "github.com/sologenic/gclouddatastore"
 
 client, err := datastore.NewClient(ctx, "my-project-id")
 if err != nil {
@@ -128,7 +128,7 @@ count, err := client.Count(ctx, datastore.NewQuery("User").
 
 To migrate from `cloud.google.com/go/datastore`:
 
-1. Update import: `cloud.google.com/go/datastore` → `github.com/norbertvannobelen/gclouddatastore`
+1. Update import: `cloud.google.com/go/datastore` → `github.com/sologenic/gclouddatastore`
 2. Done
 
 Other fork features: partial parsing, auto-casting in filters, optimized `Count`, and `GetAllWithUnparsedFields` behave as documented above.

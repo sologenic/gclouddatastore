@@ -18,7 +18,7 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/norbertvannobelen/gclouddatastore/internal/gaepb"
+	"github.com/sologenic/gclouddatastore/internal/gaepb"
 	"google.golang.org/protobuf/proto"
 )
 

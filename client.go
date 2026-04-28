@@ -22,9 +22,9 @@ import (
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
 	gax "github.com/googleapis/gax-go/v2"
-	"github.com/norbertvannobelen/gclouddatastore/internal"
-	"github.com/norbertvannobelen/gclouddatastore/internal/trace"
-	"github.com/norbertvannobelen/gclouddatastore/internal/version"
+	"github.com/sologenic/gclouddatastore/internal"
+	"github.com/sologenic/gclouddatastore/internal/trace"
+	"github.com/sologenic/gclouddatastore/internal/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

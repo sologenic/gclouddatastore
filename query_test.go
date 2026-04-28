@@ -26,7 +26,7 @@ import (
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
 	"github.com/google/go-cmp/cmp"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"github.com/sologenic/gclouddatastore/internal/testutil"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"

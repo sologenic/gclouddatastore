@@ -1,12 +1,12 @@
 # Changes
 
-## This fork (`github.com/norbertvannobelen/gclouddatastore`)
+## This fork (`github.com/sologenic/gclouddatastore`)
 
 The following entries describe changes in **this repository** relative to the upstream [Cloud Datastore Go client](https://github.com/googleapis/google-cloud-go/tree/main/datastore) at [`cloud.google.com/go/datastore` v1.21.0](https://github.com/googleapis/google-cloud-go/releases/tag/datastore%2Fv1.21.0). See [README.md](README.md) for installation, examples, and migration from `cloud.google.com/go/datastore`.
 
-### 2026-04-19 — Default unindexed properties; index tag ([#1](https://github.com/norbertvannobelen/gclouddatastore/pull/1))
+### 2026-04-19 — Default unindexed properties; index tag ([#1](https://github.com/sologenic/gclouddatastore/pull/1))
 
-Commit: [d93cd52](https://github.com/norbertvannobelen/gclouddatastore/commit/d93cd52379841abebbc5a5f1f58914149ca57c5d).
+Commit: [d93cd52](https://github.com/sologenic/gclouddatastore/commit/d93cd52379841abebbc5a5f1f58914149ca57c5d).
 
 #### Breaking changes
 
@@ -28,7 +28,7 @@ Indexing defaults are aimed at lower index storage and backup or snapshot cost w
 
 ### 2026-02-04 — Initial fork
 
-Commit: [18cd5e1](https://github.com/norbertvannobelen/gclouddatastore/commit/18cd5e13ce05b546e3efe97aef95eaef6394ace9).
+Commit: [18cd5e1](https://github.com/sologenic/gclouddatastore/commit/18cd5e13ce05b546e3efe97aef95eaef6394ace9).
 
 #### Features
 

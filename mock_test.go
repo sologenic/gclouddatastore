@@ -28,7 +28,7 @@ import (
 	"testing"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"github.com/sologenic/gclouddatastore/internal/testutil"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

@@ -21,7 +21,7 @@ import (
 
 	"cloud.google.com/go/civil"
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/testutil"
+	"github.com/sologenic/gclouddatastore/internal/testutil"
 )
 
 func TestInterfaceToProtoNil(t *testing.T) {

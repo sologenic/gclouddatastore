@@ -523,4 +523,4 @@ and use a client as usual:
 	}
 	defer client.Close()
 */
-package datastore // import "github.com/norbertvannobelen/gclouddatastore"
+package datastore // import "github.com/sologenic/gclouddatastore"

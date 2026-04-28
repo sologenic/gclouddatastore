@@ -22,7 +22,7 @@ import (
 
 	"cloud.google.com/go/civil"
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	"github.com/norbertvannobelen/gclouddatastore/internal/fields"
+	"github.com/sologenic/gclouddatastore/internal/fields"
 )
 
 var (

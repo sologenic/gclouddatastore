@@ -21,7 +21,7 @@ package admin
 import (
 	"iter"
 
-	adminpb "github.com/norbertvannobelen/gclouddatastore/admin/apiv1/adminpb"
+	adminpb "github.com/sologenic/gclouddatastore/admin/apiv1/adminpb"
 	longrunningpb "cloud.google.com/go/longrunning/autogen/longrunningpb"
 	"github.com/googleapis/gax-go/v2/iterator"
 )

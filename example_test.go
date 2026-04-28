@@ -20,7 +20,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/norbertvannobelen/gclouddatastore"
+	datastore "github.com/sologenic/gclouddatastore"
 	"google.golang.org/api/iterator"
 )
 
