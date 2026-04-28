@@ -87,7 +87,7 @@ type Field struct {
 // ParseTagFunc is a function that accepts a struct tag and returns four values: an alternative name for the field
 // extracted from the tag, a boolean saying whether to keep the field or ignore  it, additional data that is stored
 // with the field information to avoid having to parse the tag again, and an error.
-type ParseTagFunc func(reflect.StructTag) (name string, keep bool, other interface{}, err error)
+type ParseTagFunc func(string, string, reflect.StructTag) (name string, keep bool, other interface{}, err error)
 
 // ValidateFunc is a function that accepts a reflect.Type and returns an error if the struct type is invalid in any
 // way.
@@ -121,7 +121,7 @@ type Cache struct {
 // are of an appropriate type.
 func NewCache(parseTag ParseTagFunc, validate ValidateFunc, leafTypes LeafTypesFunc) *Cache {
 	if parseTag == nil {
-		parseTag = func(reflect.StructTag) (string, bool, interface{}, error) {
+		parseTag = func(string, string, reflect.StructTag) (string, bool, interface{}, error) {
 			return "", true, nil, nil
 		}
 	}
@@ -319,7 +319,7 @@ func (c *Cache) listFields(t reflect.Type) ([]Field, error) {
 				}
 
 				// Examine the tag.
-				tagName, keep, other, err := c.parseTag(f.Tag)
+				tagName, keep, other, err := c.parseTag(t.Name(), f.Name, f.Tag)
 				if err != nil {
 					return nil, err
 				}

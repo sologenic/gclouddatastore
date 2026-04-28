@@ -260,38 +260,32 @@ func TestSimpleQuery(t *testing.T) {
 		{
 			Name:  "Height",
 			Value: int64(32),
-			Index: true,
 		},
 		{
 			Name:  "Name",
 			Value: "George",
-			Index: true,
 		},
 	}
 	pList2 := PropertyList{
 		{
 			Name:  "Name",
 			Value: "Rufus",
-			Index: true,
 		},
 	}
 	pMap1 := PropertyMap{
 		"Name": Property{
 			Name:  "Name",
 			Value: "George",
-			Index: true,
 		},
 		"Height": Property{
 			Name:  "Height",
 			Value: int64(32),
-			Index: true,
 		},
 	}
 	pMap2 := PropertyMap{
 		"Name": Property{
 			Name:  "Name",
 			Value: "Rufus",
-			Index: true,
 		},
 	}
 

@@ -143,4 +143,3 @@ Other fork features: partial parsing, auto-casting in filters, optimized `Count`
 - **GetAllWithUnparsedFields**: New function for getting unparsed field information
 - **FilterField Auto-Casting**: Custom types automatically converted to base types
 - **Count Optimization**: Uses GQL aggregation instead of loading records
-- **Indexing defaults**: Excluded from indexes by default; explicit `index` tag or `RegisterIndexedFields` to opt in (`Property` uses `Index` instead of `NoIndex`)

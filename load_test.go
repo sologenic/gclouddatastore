@@ -644,8 +644,8 @@ func TestLoadArrayIndex(t *testing.T) {
 	want := &Entity{
 		Key: testKey0,
 		Properties: []Property{
-			{Name: "indexed", Value: []interface{}{"1", "2"}, Index: true},
-			{Name: "non-indexed", Value: []interface{}{"3", "4"}},
+			{Name: "indexed", Value: []interface{}{"1", "2"}},
+			{Name: "non-indexed", Value: []interface{}{"3", "4"}, NoIndex: true},
 		},
 	}
 
@@ -658,10 +658,10 @@ func TestLoadArrayIndex(t *testing.T) {
 		return p1.Name < p2.Name
 	}
 	if !testutil.Equal(want.Properties, dst.Properties, cmpopts.SortSlices(cmpProperties)) {
-		t.Errorf("Property.Index mismatch:\ngot:  %#v\nwant: %#v", dst, want)
+		t.Errorf("NoIndex should be correct: Property:\ngot:  %#v\nwant: %#v", dst, want)
 	}
 	if !testutil.Equal(want.Key, dst.Key) {
-		t.Errorf("Key mismatch:\ngot:  %#v\nwant: %#v", dst, want)
+		t.Errorf("NoIndex should be correct: Key:\ngot:  %#v\nwant: %#v", dst, want)
 	}
 }
 

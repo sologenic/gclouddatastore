@@ -27,7 +27,7 @@ func TestMutationProtos(t *testing.T) {
 		k := IDKey("kind", int64(i), nil)
 		keys = append(keys, k)
 	}
-	entity := &PropertyList{Indexed("n", "v")}
+	entity := &PropertyList{{Name: "n", Value: "v"}}
 	entityForKey := func(k *Key) *pb.Entity {
 		return &pb.Entity{
 			Key: keyToProto(k),
@@ -94,7 +94,7 @@ func TestMutationProtos(t *testing.T) {
 }
 
 func TestMutationProtosErrors(t *testing.T) {
-	entity := &PropertyList{Indexed("n", "v")}
+	entity := &PropertyList{{Name: "n", Value: "v"}}
 	k := IDKey("kind", 1, nil)
 	ik := IncompleteKey("kind", nil)
 	for _, test := range []struct {

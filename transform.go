@@ -109,7 +109,7 @@ func Minimum(fieldName string, value interface{}) PropertyTransform {
 func AppendMissingElements(fieldName string, elements ...interface{}) PropertyTransform {
 	pbValues := make([]*pb.Value, len(elements))
 	for i, el := range elements {
-		vProto, err := interfaceToProto(el, false) // excludeFromIndexes=false so values match indexed properties
+		vProto, err := interfaceToProto(el, false) // NoIndex is false for elements in array for matching
 		if err != nil {
 			return PropertyTransform{err: fmt.Errorf("datastore: AppendMissingElements: cannot convert element at index %d for field '%s': %w", i, fieldName, err)}
 		}
@@ -135,7 +135,7 @@ func AppendMissingElements(fieldName string, elements ...interface{}) PropertyTr
 func RemoveAllFromArray(fieldName string, elements ...interface{}) PropertyTransform {
 	pbValues := make([]*pb.Value, len(elements))
 	for i, el := range elements {
-		vProto, err := interfaceToProto(el, false) // excludeFromIndexes=false so values match indexed properties
+		vProto, err := interfaceToProto(el, false) // NoIndex is false for elements in array for matching
 		if err != nil {
 			return PropertyTransform{err: fmt.Errorf("datastore: RemoveAllFromArray: cannot convert element at index %d for field '%s': %w", i, fieldName, err)}
 		}

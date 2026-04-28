@@ -287,8 +287,8 @@ func TestIntegration_Basics(t *testing.T) {
 }
 
 type OldX struct {
-	I int `datastore:",index"`
-	J int `datastore:",index"`
+	I int
+	J int
 }
 type NewX struct {
 	I int
@@ -699,9 +699,9 @@ func TestIntegration_GetMulti(t *testing.T) {
 }
 
 type Z struct {
-	S string `datastore:",index"`
+	S string
 	T string `datastore:",noindex"`
-	P []byte `datastore:",index"`
+	P []byte
 	K []byte `datastore:",noindex"`
 }
 
@@ -779,10 +779,10 @@ func TestIntegration_NilKey(t *testing.T) {
 }
 
 type SQChild struct {
-	I, J int     `datastore:",index"`
-	T, U int64   `datastore:",index"`
-	V    float64 `datastore:",index"`
-	W    string  `datastore:",index"`
+	I, J int
+	T, U int64
+	V    float64
+	W    string
 }
 
 type SQTestCase struct {

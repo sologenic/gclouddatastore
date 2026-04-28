@@ -603,16 +603,16 @@ func protoToEntity(src *pb.Entity) (*Entity, error) {
 		if err != nil {
 			return nil, err
 		}
-		excl := val.ExcludeFromIndexes
+		noIndex := val.ExcludeFromIndexes
 		if array := val.GetArrayValue(); array != nil {
 			if values := array.GetValues(); len(values) > 0 {
-				excl = values[0].ExcludeFromIndexes
+				noIndex = values[0].ExcludeFromIndexes
 			}
 		}
 		props = append(props, Property{
-			Name:  name,
-			Value: v,
-			Index: !excl,
+			Name:    name,
+			Value:   v,
+			NoIndex: noIndex,
 		})
 	}
 	var key *Key

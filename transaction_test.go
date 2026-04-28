@@ -98,7 +98,7 @@ func TestNewTransaction(t *testing.T) {
 
 func TestBeginLaterTransactionOption(t *testing.T) {
 	type ent struct {
-		A int `datastore:",index"`
+		A int
 	}
 	type addRPCInput struct {
 		wantReq proto.Message
@@ -559,7 +559,7 @@ func equalErrs(gotErr error, wantErr error) bool {
 func TestRunInTransaction(t *testing.T) {
 
 	type Counter struct {
-		N int `datastore:",index"`
+		N int
 	}
 	key := NameKey("Counter", "c-01", nil)
 	gotNumFRuns := 0

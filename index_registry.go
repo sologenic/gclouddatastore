@@ -15,44 +15,11 @@
 package datastore
 
 import (
+	"log"
 	"reflect"
-	"sync"
 )
 
-var indexedFieldRegistry sync.Map // reflect.Type (struct) -> map[string]struct{}
-
-// RegisterIndexedFields marks property name paths on typ as indexed when saving
-// structs. typ must be a struct type or pointer-to-struct. Paths use the same
-// dotted names as saved properties (including flatten prefixes, e.g. "I.X").
-// Tags on a field still apply; use this to opt fields into indexing without
-// datastore struct tags.
+// Deprecated: RegisterIndexedFields
 func RegisterIndexedFields(typ reflect.Type, paths ...string) {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-	if typ.Kind() != reflect.Struct {
-		panic("datastore: RegisterIndexedFields requires a struct type")
-	}
-	m := make(map[string]struct{})
-	if v, ok := indexedFieldRegistry.Load(typ); ok {
-		for k := range v.(map[string]struct{}) {
-			m[k] = struct{}{}
-		}
-	}
-	for _, p := range paths {
-		m[p] = struct{}{}
-	}
-	indexedFieldRegistry.Store(typ, m)
-}
-
-func isRegisteredIndexed(typ reflect.Type, name string) bool {
-	if typ.Kind() == reflect.Ptr {
-		typ = typ.Elem()
-	}
-	v, ok := indexedFieldRegistry.Load(typ)
-	if !ok {
-		return false
-	}
-	_, ok = v.(map[string]struct{})[name]
-	return ok
+	log.Print("[DEPRECATION NOTICE] RegisterIndexedFields is deprecated and has no effect\n")
 }

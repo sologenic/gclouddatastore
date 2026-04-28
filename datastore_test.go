@@ -211,7 +211,7 @@ func TestQueryConstruction(t *testing.T) {
 func TestPutWithOptions(t *testing.T) {
 	ctx := context.Background()
 	type S struct {
-		A int `datastore:",index"`
+		A int
 	}
 
 	key := NameKey("testKind", "test", nil)
@@ -254,7 +254,7 @@ func TestPutWithOptions(t *testing.T) {
 func TestPutMultiWithOptions(t *testing.T) {
 	ctx := context.Background()
 	type S struct {
-		A int `datastore:",index"`
+		A int
 	}
 
 	keys := []*Key{
@@ -624,6 +624,7 @@ func TestNoIndexOnSliceProperties(t *testing.T) {
 				"short",
 				strings.Repeat("a", 1503),
 			},
+			NoIndex: true,
 		},
 	}
 	key := NameKey("dummy", "dummy", nil)

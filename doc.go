@@ -119,17 +119,16 @@ a struct pointer, an entity that cannot be completely represented (such as a
 missing field) will result in an ErrFieldMismatch error but it is up to the
 caller whether this error is fatal, recoverable or ignorable.
 
-By default, for struct pointers, properties are excluded from indexes, and
+By default, for struct pointers, all properties are potentially indexed, and
 the property name is the same as the field name (and hence must start with an
-upper case letter). Tag a field with `index` (see below) when you need to
-filter, sort, or project on it in queries.
+upper case letter).
 
 Fields may have a `datastore:"name,options"` tag. The tag name is the
 property name, which must be one or more valid Go identifiers joined by ".",
 but may start with a lower case letter. An empty tag name means to just use the
 field name. A "-" tag name means that the datastore will ignore that field.
 
-The only valid options are "omitempty", "noindex", "index" and "flatten".
+The only valid options are "omitempty", "noindex", "index" (deprecated) and "flatten".
 
 If the options include "omitempty" and the value of the field is an empty
 value, then the field will be omitted on Save. Empty values are defined as
@@ -137,13 +136,10 @@ false, 0, a nil pointer, a nil interface value, the zero time.Time, and any
 empty slice or string. (Empty slices are never saved, even without
 "omitempty".) Other structs, including GeoPoint, are never considered empty.
 
-By default fields are not indexed. Use the "index" option to include a field
-in indexes (single-property and composite). Options "index" and "noindex"
-cannot appear together on the same field. The "noindex" option is redundant
-with the default but kept for clarity when migrating from older semantics.
-
-Strings or byte slices longer than 1500 bytes cannot be indexed; if you tag
-such a field with "index", Put operations will fail.
+If options include "noindex" then the field will not be indexed. All fields
+are indexed by default. Strings or byte slices longer than 1500 bytes cannot
+be indexed; fields used to store long strings and byte slices must be tagged
+with "noindex" or they will cause Put operations to fail.
 
 For a nested struct field, the options may also include "flatten". This
 indicates that the immediate fields and any nested substruct fields of the
@@ -157,12 +153,13 @@ If the options is "" then the comma may be omitted.
 Example code:
 
 	// A and B are renamed to a and b.
-	// A, C, D, E and J use the default (not indexed). B is indexed.
+	// A, C and J are not indexed.
+	// D's tag is equivalent to having no tag at all (E).
 	// I is ignored entirely by the datastore.
 	// J has tag information for both the datastore and json packages.
 	type TaggedStruct struct {
 		A int `datastore:"a,noindex"`
-		B int `datastore:"b,index"`
+		B int `datastore:"b"`
 		C int `datastore:",noindex"`
 		D int `datastore:""`
 		E int
@@ -209,7 +206,7 @@ the Entity.
 Example code:
 
 	type MyEntity struct {
-		A int            `datastore:",index"`
+		A int
 		K *datastore.Key `datastore:"__key__"`
 	}
 
@@ -263,8 +260,7 @@ example, in case of a type Outer with an embedded field Inner:
 all the Inner struct fields will be treated as fields of Outer itself.
 
 If an outer struct is tagged "noindex" then all of its implicit flattened
-fields are effectively excluded from indexes. Children may still use "index"
-to opt back in where applicable.
+fields are effectively "noindex".
 
 If the Inner struct contains a *Key field with the name "__key__", like so:
 
@@ -368,12 +364,10 @@ Example code:
 			{
 				Name:  "I",
 				Value: int64(x.I),
-				Index: true,
 			},
 			{
 				Name:  "J",
 				Value: int64(x.J),
-				Index: true,
 			},
 		}, nil
 	}
@@ -444,8 +438,8 @@ by a chain of zero or more such methods. These methods are:
 Example code:
 
 	type Widget struct {
-		Description string `datastore:",index"`
-		Price       int    `datastore:",index"`
+		Description string
+		Price       int
 	}
 
 	func printWidgets(ctx context.Context, client *datastore.Client) {
@@ -474,7 +468,7 @@ Client.RunInTransaction runs a function in a transaction.
 Example code:
 
 	type Counter struct {
-		Count int `datastore:",index"`
+		Count int
 	}
 
 	func incCount(ctx context.Context, client *datastore.Client) {

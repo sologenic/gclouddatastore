@@ -16,6 +16,7 @@ package datastore
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 	"strings"
 	"unicode"
@@ -60,11 +61,10 @@ type Property struct {
 	// a nil-valued property into a struct will set that field to the zero
 	// value.
 	Value interface{}
-	// Index is whether this property may be indexed (single-property and
-	// composite indexes). The zero value false excludes the property from
-	// indexes. Set Index to true for fields you filter, sort, or project on
-	// in queries. Indexed string and []byte values must be at most 1500 bytes.
-	Index bool
+	// NoIndex is whether the datastore cannot index this property.
+	// If NoIndex is set to false, []byte and string values are limited to
+	// 1500 bytes.
+	NoIndex bool
 }
 
 // An Entity is the value type for a nested struct.
@@ -108,9 +108,10 @@ func (l *PropertyList) Save() ([]Property, error) {
 	return *l, nil
 }
 
-// Indexed returns a Property with Index set to true (eligible for indexing).
+// Deprecated: Indexed
 func Indexed(name string, value interface{}) Property {
-	return Property{Name: name, Value: value, Index: true}
+	log.Print("[DEPRECATION NOTICE] Indexed is deprecated and will enforce NoIndex: false\n")
+	return Property{Name: name, Value: value, NoIndex: false}
 }
 
 // validPropertyName returns whether name consists of one or more valid Go
@@ -141,7 +142,7 @@ func validPropertyName(name string) bool {
 }
 
 // parseTag interprets datastore struct field tags
-func parseTag(t reflect.StructTag) (name string, keep bool, other interface{}, err error) {
+func parseTag(structName, fieldName string, t reflect.StructTag) (name string, keep bool, other interface{}, err error) {
 	s := t.Get("datastore")
 	parts := strings.Split(s, ",")
 	if parts[0] == "-" && len(parts) == 1 {
@@ -163,14 +164,11 @@ func parseTag(t reflect.StructTag) (name string, keep bool, other interface{}, e
 			case "noindex":
 				opts.noIndex = true
 			case "index":
-				opts.index = true
+				log.Printf("[DEPRECATION NOTICE] The 'index' tag option is deprecated and can be safely removed (struct '%s', field '%s')\n", structName, fieldName)
 			default:
 				err = fmt.Errorf("datastore: struct tag has invalid option: %q", p)
 				return "", false, nil, err
 			}
-		}
-		if opts.index && opts.noIndex {
-			return "", false, nil, fmt.Errorf("datastore: struct tag cannot use both index and noindex")
 		}
 		other = opts
 	}
@@ -215,7 +213,7 @@ func validateChildType(t reflect.Type, fieldName string, flatten, prevSlice bool
 				continue
 			}
 
-			_, keep, other, err := parseTag(f.Tag)
+			_, keep, other, err := parseTag(t.Name(), f.Name, f.Tag)
 			// Handle error from parseTag now instead of later (in cache.Fields call).
 			if err != nil {
 				return err
