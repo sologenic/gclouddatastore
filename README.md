@@ -6,9 +6,9 @@ This is a fork of the [Google Cloud Datastore Go client library](https://github.
 
 The changes here (relative to Google’s `datastore` package) come from several years of running **Cloud Datastore in Datastore mode**. It is an interesting database to operate, but the official Go client has limitations and bugs; this fork addresses those. Because it is maintained by someone who uses Datastore daily, the fixes remove practical, day-to-day annoyances that Go developers can hit with the upstream package.
 
-As a bonus, the fork also drives down **data storage, backup, and snapshot** costs—by an estimated **~95%** in the author’s workloads (on the order of ~1 billion records total). Hypothetically, writes can be faster too: less I/O and CPU because far fewer indexes are updated.
+As a bonus, the fork also drives down **data storage, backup, and snapshot** costs—by an estimated **~95%** in the author’s workloads (on the order of ~1 billion records total). Hypothetically, writes can be faster too: less I/O and CPU.
 
-The package surface is **100% backwards compatible** with Google’s client and works as a **drop-in replacement**, with one important caveat: the cost-oriented default **flips index behavior** from *indexed by default* to *no index by default*. Every property that must be queryable must be indexed explicitly by the developer (see **Default no index** below).
+The package surface is **100% backwards compatible** with Google’s client and works as a **drop-in replacement**.
 
 **Original Package**: `cloud.google.com/go/datastore`  
 **This Fork**: `github.com/norbertvannobelen/gclouddatastore`
@@ -24,8 +24,6 @@ This fork includes the following improvements over the original Google package:
 3. **Automatic Type Casting in Filters**: `FilterField` now automatically casts custom types (enums, custom int/float types) to base types, eliminating the need for manual casting before querying.
 
 4. **Optimized Count Function**: The `Count()` function now uses GQL aggregation queries for efficient server-side counting instead of loading all records into memory.
-
-5. **Default no index**: Struct fields and `datastore.Property` values are excluded from Datastore indexes unless you opt in. Use the `index` struct tag, `datastore.RegisterIndexedFields`, or `datastore.Indexed(name, value)` for manual `PropertyLoadSaver` code. This reduces index storage and avoids tagging every large blob with `noindex`.
 
 ### License
 
@@ -131,9 +129,7 @@ count, err := client.Count(ctx, datastore.NewQuery("User").
 To migrate from `cloud.google.com/go/datastore`:
 
 1. Update import: `cloud.google.com/go/datastore` → `github.com/norbertvannobelen/gclouddatastore`
-2. Add `datastore:",index"` (or `name,index` with a name prefix) on **every struct field** you query with `Filter`, `FilterField`, `Order`, or projections. Fields omitted from indexes are not queryable the same way as before.
-3. **Property / PropertyLoadSaver**: Replace `NoIndex bool` with `Index bool`. Old `NoIndex: false` (default) meant “indexed” → set `Index: true`. Old `NoIndex: true` → omit `Index` or `Index: false`.
-4. Deploy or adjust composite indexes in your project if query fields change.
+2. Done
 
 Other fork features: partial parsing, auto-casting in filters, optimized `Count`, and `GetAllWithUnparsedFields` behave as documented above.
 
