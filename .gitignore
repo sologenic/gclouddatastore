@@ -1,1 +1,13 @@
 .idea
+.DS_Store
+__debug*
+tmp/
+.idea/
+nohup.out
+go.work
+go.work.sum
+node_modules/
+.env.local
+.env.xapp
+repomix-output*
+.vscode/linenote
