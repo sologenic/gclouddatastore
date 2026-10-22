@@ -1,6 +1,6 @@
 module github.com/sologenic/gclouddatastore
 
-go 1.27.1
+go 1.27.3
 
 require (
 	cloud.google.com/go v0.123.0
