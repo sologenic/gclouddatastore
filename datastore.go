@@ -156,14 +156,13 @@ func NewClientWithDatabase(ctx context.Context, projectID, databaseID string, op
 		return nil, fmt.Errorf("dialing: %w", err)
 	}
 
-	config := newDatastoreConfig(o...)
 	return &Client{
 		connPool:     connPool,
 		client:       newDatastoreClient(connPool, projectID, databaseID),
 		dataset:      projectID,
 		readSettings: &readSettings{},
 		databaseID:   databaseID,
-		config:       &config,
+		config:       new(newDatastoreConfig(o...)),
 	}, nil
 }
 
@@ -533,16 +532,16 @@ func (c *Client) get(ctx context.Context, keys []*Key, dst interface{}, opts *pb
 
 	// Go through keys, validate them, serialize then, and create a dict mapping them to their indices.
 	// Equal keys are deduped.
-	multiErr, any := make(MultiError, len(keys)), false
+	multiErr, anyInvalid := make(MultiError, len(keys)), false
 	keyMap := make(map[string][]int, len(keys))
 	pbKeys := make([]*pb.Key, 0, len(keys))
 	for i, k := range keys {
 		if !k.valid() {
 			multiErr[i] = ErrInvalidKey
-			any = true
+			anyInvalid = true
 		} else if k.Incomplete() {
 			multiErr[i] = fmt.Errorf("datastore: can't get the incomplete key: %v", k)
-			any = true
+			anyInvalid = true
 		} else {
 			ks := k.stringInternal()
 			if _, ok := keyMap[ks]; !ok {
@@ -551,7 +550,7 @@ func (c *Client) get(ctx context.Context, keys []*Key, dst interface{}, opts *pb
 			keyMap[ks] = append(keyMap[ks], i)
 		}
 	}
-	if any {
+	if anyInvalid {
 		return nil, multiErr
 	}
 	req := &pb.LookupRequest{
@@ -599,7 +598,7 @@ func (c *Client) get(ctx context.Context, keys []*Key, dst interface{}, opts *pb
 			}
 			if err := loadEntityProto(elem.Interface(), e.Entity); err != nil {
 				multiErr[index] = err
-				any = true
+				anyInvalid = true
 			}
 		}
 	}
@@ -612,14 +611,14 @@ func (c *Client) get(ctx context.Context, keys []*Key, dst interface{}, opts *pb
 		for _, index := range keyMap[k.stringInternal()] {
 			multiErr[index] = ErrNoSuchEntity
 		}
-		any = true
+		anyInvalid = true
 	}
 
 	if filled != len(keys) {
 		return txnID, errors.New("datastore: internal error: server returned the wrong number of entities")
 	}
 
-	if any {
+	if anyInvalid {
 		return txnID, multiErr
 	}
 	return txnID, nil

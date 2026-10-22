@@ -22,7 +22,7 @@ import (
 	"time"
 
 	pb "cloud.google.com/go/datastore/apiv1/datastorepb"
-	gax "github.com/googleapis/gax-go/v2"
+	"github.com/googleapis/gax-go/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"

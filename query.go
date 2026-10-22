@@ -30,7 +30,7 @@ import (
 	"github.com/sologenic/gclouddatastore/internal/trace"
 	"google.golang.org/api/iterator"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type operator string
@@ -1355,8 +1355,7 @@ func fromPbPlanSummary(pbPlanSummary *pb.PlanSummary) *PlanSummary {
 	planSummary := &PlanSummary{}
 	indexesUsed := []*map[string]interface{}{}
 	for _, pbIndexUsed := range pbPlanSummary.GetIndexesUsed() {
-		indexUsed := protostruct.DecodeToMap(pbIndexUsed)
-		indexesUsed = append(indexesUsed, &indexUsed)
+		indexesUsed = append(indexesUsed, new(protostruct.DecodeToMap(pbIndexUsed)))
 	}
 
 	planSummary.IndexesUsed = indexesUsed
@@ -1373,11 +1372,9 @@ func fromPbExecutionStats(pbstats *pb.ExecutionStats) *ExecutionStats {
 		ReadOperations:  pbstats.GetReadOperations(),
 	}
 
-	executionDuration := pbstats.GetExecutionDuration().AsDuration()
-	executionStats.ExecutionDuration = &executionDuration
+	executionStats.ExecutionDuration = new(pbstats.GetExecutionDuration().AsDuration())
 
-	debugStats := protostruct.DecodeToMap(pbstats.GetDebugStats())
-	executionStats.DebugStats = &debugStats
+	executionStats.DebugStats = new(protostruct.DecodeToMap(pbstats.GetDebugStats()))
 
 	return executionStats
 }

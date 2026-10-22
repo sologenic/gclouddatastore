@@ -159,9 +159,9 @@ func testMain(m *testing.M) int {
 				return nil
 			},
 		}
-		status := m.Run()
-		if status != 0 {
-			return status
+		statusCode := m.Run()
+		if statusCode != 0 {
+			return statusCode
 		}
 	}
 
@@ -357,7 +357,7 @@ func TestIntegration_IgnoreFieldMismatch(t *testing.T) {
 			for {
 				var newX NewX
 				_, err := it.Next(&newX)
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if resIndex >= len(wants) {
@@ -517,7 +517,7 @@ func TestIntegration_RunWithReadTime(t *testing.T) {
 
 		it := runClient.Run(runCtx, NewQuery("RT"))
 		_, err = it.Next(nil)
-		if err != nil && err != iterator.Done {
+		if err != nil && !errors.Is(iterator.Done, err) {
 			r.Errorf("client.Run: %v", err)
 		}
 	})
@@ -688,7 +688,7 @@ func TestIntegration_GetMulti(t *testing.T) {
 		if !cases[i].put {
 			got, want = err, ErrNoSuchEntity
 		}
-		if got != want {
+		if !errors.Is(got, want) {
 			t.Errorf("%s: MultiError[%d] == %v, want %v", cases[i].desc, i, got, want)
 		}
 
@@ -1761,7 +1761,7 @@ func TestIntegration_LargeQuery(t *testing.T) {
 			it := client.Run(ctx, q.Limit(limit).Offset(offset).KeysOnly())
 			for i := 0; i < count; i++ {
 				_, err := it.Next(nil)
-				if err == iterator.Done {
+				if errors.Is(err, iterator.Done) {
 					break
 				}
 				if err != nil {
@@ -2369,7 +2369,7 @@ func TestIntegration_Transaction(t *testing.T) {
 			}, MaxAttempts(i))
 
 			// Check the error returned by RunInTransaction.
-			if err != test.wantErr {
+			if !errors.Is(err, test.wantErr) {
 				t.Fatalf("got err %v, want %v", err, test.wantErr)
 			}
 			if test.wantErr != nil {
@@ -2467,7 +2467,7 @@ func TestIntegration_NilPointers(t *testing.T) {
 
 	// It isn't okay to store into a single nil *X.
 	var x0 *X
-	if err, want := client.Get(ctx, keys[0], x0), ErrInvalidEntityType; err != want {
+	if err, want := client.Get(ctx, keys[0], x0), ErrInvalidEntityType; !errors.Is(err, want) {
 		t.Errorf("Get: err %v; want %v", err, want)
 	}
 
@@ -2592,7 +2592,7 @@ func testMutate(t *testing.T, mutate func(ctx context.Context, client *Client, m
 		err := client.Get(ctx, k, &x)
 		switch want := want.(type) {
 		case error:
-			if err != want {
+			if !errors.Is(want, err) {
 				t.Errorf("key %s: got error %v, want %v", k, err, want)
 			}
 		case int:

@@ -309,7 +309,7 @@ func (c *Cache) listFields(t reflect.Type) ([]Field, error) {
 			for i := 0; i < t.NumField(); i++ {
 				f := t.Field(i)
 
-				exported := (f.PkgPath == "")
+				exported := f.PkgPath == ""
 
 				// If a named field is unexported, ignore it. An anonymous
 				// unexported field is processed, because it may contain

@@ -2084,8 +2084,7 @@ func (s *plsString) Save() ([]Property, error) {
 }
 
 func ptrToplsString(s string) *plsString {
-	plsStr := plsString(s)
-	return &plsStr
+	return new(plsString(s))
 }
 
 type aSubPLS struct {

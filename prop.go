@@ -208,7 +208,7 @@ func validateChildType(t reflect.Type, fieldName string, flatten, prevSlice bool
 			// If a named field is unexported, ignore it. An anonymous
 			// unexported field is processed, because it may contain
 			// exported fields, which are visible.
-			exported := (f.PkgPath == "")
+			exported := f.PkgPath == ""
 			if !exported && !f.Anonymous {
 				continue
 			}
