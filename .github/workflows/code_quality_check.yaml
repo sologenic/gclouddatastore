@@ -46,4 +46,4 @@ jobs:
           GOPRIVATE: "github.com/sologenic/*"
           GIT_TERMINAL_PROMPT: "0"
         with:
-          version: v2.14.0
+          version: v2.15.0
